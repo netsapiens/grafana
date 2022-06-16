@@ -33,7 +33,7 @@ func TestDashboardSnapshotAPIEndpoint_singleSnapshot(t *testing.T) {
 	require.NoError(t, err)
 
 	sqlmock := mockstore.NewSQLStoreMock()
-	dashSvc := &dashboards.FakeDashboardService{}
+	dashSvc := &dashboards.MockDashboardService{}
 	dashSvc.On("GetDashboardAclInfoList", mock.Anything, mock.AnythingOfType("*models.GetDashboardAclInfoListQuery")).Return(nil)
 	dashSnapSvc := dashboardsnapshots.ProvideService(sqlmock, nil)
 	hs := &HTTPServer{dashboardsnapshotsService: dashSnapSvc}
@@ -102,7 +102,7 @@ func TestDashboardSnapshotAPIEndpoint_singleSnapshot(t *testing.T) {
 	})
 
 	t.Run("When user is editor and dashboard has default ACL", func(t *testing.T) {
-		dashSvc := &dashboards.FakeDashboardService{}
+		dashSvc := &dashboards.MockDashboardService{}
 		dashSvc.On("GetDashboardAclInfoList", mock.Anything, mock.AnythingOfType("*models.GetDashboardAclInfoListQuery")).Run(func(args mock.Arguments) {
 			q := args.Get(1).(*models.GetDashboardAclInfoListQuery)
 			q.Result = []*models.DashboardAclInfoDTO{
