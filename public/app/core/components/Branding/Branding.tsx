@@ -60,7 +60,7 @@ export class Branding {
   static MenuLogo = MenuLogo;
   static LoginBoxBackground = LoginBoxBackground;
   static AppTitle = 'NetSapiens Insight';
-  static LoginTitle = 'Welcome to NetSapiens Insight';
+  static LoginTitle = 'Welcome to Insight';
   static GetLoginSubTitle = (): null | string => {
     return null;
   };
