@@ -18,5 +18,5 @@ build_delay = 1500
 cmds = [
   ["make", "gen-go"],
   ["GO_BUILD_DEV=1", "make", "build-server"],
-  ["./bin/grafana-server", "-packaging=dev", "cfg:app_mode=development"]
+  ["./bin/grafana-server", "-packaging=dev", "cfg:app_mode=development", "/opt/grafana/defaults.ini"]
 ]
