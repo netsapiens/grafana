@@ -3,34 +3,36 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
 	sdkhttpclient "github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
-	"github.com/grafana/grafana/pkg/services/secrets"
-	secretsManager "github.com/grafana/grafana/pkg/services/secrets/manager"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
 	"github.com/grafana/grafana/pkg/infra/httpclient"
-	"github.com/grafana/grafana/pkg/models"
+	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/services/accesscontrol"
 	acmock "github.com/grafana/grafana/pkg/services/accesscontrol/mock"
+	"github.com/grafana/grafana/pkg/services/datasources"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/services/secrets"
 	"github.com/grafana/grafana/pkg/services/secrets/fakes"
-	"github.com/grafana/grafana/pkg/services/secrets/kvstore"
+	secretskvs "github.com/grafana/grafana/pkg/services/secrets/kvstore"
+	secretsmng "github.com/grafana/grafana/pkg/services/secrets/manager"
+	"github.com/grafana/grafana/pkg/services/sqlstore"
 	"github.com/grafana/grafana/pkg/setting"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 type dataSourceMockRetriever struct {
-	res []*models.DataSource
+	res []*datasources.DataSource
 }
 
-func (d *dataSourceMockRetriever) GetDataSource(ctx context.Context, query *models.GetDataSourceQuery) error {
+func (d *dataSourceMockRetriever) GetDataSource(ctx context.Context, query *datasources.GetDataSourceQuery) error {
 	for _, datasource := range d.res {
 		idMatch := query.Id != 0 && query.Id == datasource.Id
 		uidMatch := query.Uid != "" && query.Uid == datasource.Uid
@@ -41,11 +43,11 @@ func (d *dataSourceMockRetriever) GetDataSource(ctx context.Context, query *mode
 			return nil
 		}
 	}
-	return models.ErrDataSourceNotFound
+	return datasources.ErrDataSourceNotFound
 }
 
 func TestService_NameScopeResolver(t *testing.T) {
-	retriever := &dataSourceMockRetriever{[]*models.DataSource{
+	retriever := &dataSourceMockRetriever{[]*datasources.DataSource{
 		{Name: "test-datasource", Uid: "1"},
 		{Name: "*", Uid: "2"},
 		{Name: ":/*", Uid: "3"},
@@ -88,7 +90,7 @@ func TestService_NameScopeResolver(t *testing.T) {
 			desc:    "unknown datasource",
 			given:   "datasources:name:unknown-datasource",
 			want:    "",
-			wantErr: models.ErrDataSourceNotFound,
+			wantErr: datasources.ErrDataSourceNotFound,
 		},
 		{
 			desc:    "malformed scope",
@@ -122,7 +124,7 @@ func TestService_NameScopeResolver(t *testing.T) {
 }
 
 func TestService_IDScopeResolver(t *testing.T) {
-	retriever := &dataSourceMockRetriever{[]*models.DataSource{
+	retriever := &dataSourceMockRetriever{[]*datasources.DataSource{
 		{Id: 1, Uid: "NnftN9Lnz"},
 	}}
 
@@ -189,14 +191,15 @@ func TestService_GetHttpTransport(t *testing.T) {
 			},
 		})
 
-		ds := models.DataSource{
+		ds := datasources.DataSource{
 			Id:   1,
 			Url:  "http://k8s:8001",
 			Type: "Kubernetes",
 		}
 
-		secretsStore := kvstore.SetupTestService(t)
-		secretsService := secretsManager.SetupTestService(t, fakes.NewFakeSecretsStore())
+		sqlStore := sqlstore.InitTestDB(t)
+		secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+		secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
 		dsService := ProvideService(nil, secretsService, secretsStore, cfg, featuremgmt.WithFeatures(), acmock.New(), acmock.NewMockedPermissionsService())
 
 		rt1, err := dsService.GetHTTPTransport(context.Background(), &ds, provider)
@@ -229,11 +232,12 @@ func TestService_GetHttpTransport(t *testing.T) {
 		sjson := simplejson.New()
 		sjson.Set("tlsAuthWithCACert", true)
 
-		secretsStore := kvstore.SetupTestService(t)
-		secretsService := secretsManager.SetupTestService(t, fakes.NewFakeSecretsStore())
+		sqlStore := sqlstore.InitTestDB(t)
+		secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+		secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
 		dsService := ProvideService(nil, secretsService, secretsStore, cfg, featuremgmt.WithFeatures(), acmock.New(), acmock.NewMockedPermissionsService())
 
-		ds := models.DataSource{
+		ds := datasources.DataSource{
 			Id:             1,
 			Url:            "http://k8s:8001",
 			Type:           "Kubernetes",
@@ -277,11 +281,12 @@ func TestService_GetHttpTransport(t *testing.T) {
 		sjson := simplejson.New()
 		sjson.Set("tlsAuth", true)
 
-		secretsStore := kvstore.SetupTestService(t)
-		secretsService := secretsManager.SetupTestService(t, fakes.NewFakeSecretsStore())
+		sqlStore := sqlstore.InitTestDB(t)
+		secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+		secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
 		dsService := ProvideService(nil, secretsService, secretsStore, cfg, featuremgmt.WithFeatures(), acmock.New(), acmock.NewMockedPermissionsService())
 
-		ds := models.DataSource{
+		ds := datasources.DataSource{
 			Id:       1,
 			OrgId:    1,
 			Name:     "kubernetes",
@@ -296,7 +301,7 @@ func TestService_GetHttpTransport(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		err = secretsStore.Set(context.Background(), ds.OrgId, ds.Name, secretType, string(secureJsonData))
+		err = secretsStore.Set(context.Background(), ds.OrgId, ds.Name, secretskvs.DataSourceSecretType, string(secureJsonData))
 		require.NoError(t, err)
 
 		rt, err := dsService.GetHTTPTransport(context.Background(), &ds, provider)
@@ -322,11 +327,12 @@ func TestService_GetHttpTransport(t *testing.T) {
 		sjson.Set("tlsAuthWithCACert", true)
 		sjson.Set("serverName", "server-name")
 
-		secretsStore := kvstore.SetupTestService(t)
-		secretsService := secretsManager.SetupTestService(t, fakes.NewFakeSecretsStore())
+		sqlStore := sqlstore.InitTestDB(t)
+		secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+		secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
 		dsService := ProvideService(nil, secretsService, secretsStore, cfg, featuremgmt.WithFeatures(), acmock.New(), acmock.NewMockedPermissionsService())
 
-		ds := models.DataSource{
+		ds := datasources.DataSource{
 			Id:       1,
 			OrgId:    1,
 			Name:     "kubernetes",
@@ -340,7 +346,7 @@ func TestService_GetHttpTransport(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		err = secretsStore.Set(context.Background(), ds.OrgId, ds.Name, secretType, string(secureJsonData))
+		err = secretsStore.Set(context.Background(), ds.OrgId, ds.Name, secretskvs.DataSourceSecretType, string(secureJsonData))
 		require.NoError(t, err)
 
 		rt, err := dsService.GetHTTPTransport(context.Background(), &ds, provider)
@@ -364,11 +370,12 @@ func TestService_GetHttpTransport(t *testing.T) {
 		sjson := simplejson.New()
 		sjson.Set("tlsSkipVerify", true)
 
-		secretsStore := kvstore.SetupTestService(t)
-		secretsService := secretsManager.SetupTestService(t, fakes.NewFakeSecretsStore())
+		sqlStore := sqlstore.InitTestDB(t)
+		secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+		secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
 		dsService := ProvideService(nil, secretsService, secretsStore, cfg, featuremgmt.WithFeatures(), acmock.New(), acmock.NewMockedPermissionsService())
 
-		ds := models.DataSource{
+		ds := datasources.DataSource{
 			Id:       1,
 			Url:      "http://k8s:8001",
 			Type:     "Kubernetes",
@@ -396,11 +403,12 @@ func TestService_GetHttpTransport(t *testing.T) {
 			"httpHeaderName1": "Authorization",
 		})
 
-		secretsStore := kvstore.SetupTestService(t)
-		secretsService := secretsManager.SetupTestService(t, fakes.NewFakeSecretsStore())
+		sqlStore := sqlstore.InitTestDB(t)
+		secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+		secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
 		dsService := ProvideService(nil, secretsService, secretsStore, cfg, featuremgmt.WithFeatures(), acmock.New(), acmock.NewMockedPermissionsService())
 
-		ds := models.DataSource{
+		ds := datasources.DataSource{
 			Id:       1,
 			OrgId:    1,
 			Name:     "kubernetes",
@@ -414,7 +422,7 @@ func TestService_GetHttpTransport(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		err = secretsStore.Set(context.Background(), ds.OrgId, ds.Name, secretType, string(secureJsonData))
+		err = secretsStore.Set(context.Background(), ds.OrgId, ds.Name, secretskvs.DataSourceSecretType, string(secureJsonData))
 		require.NoError(t, err)
 
 		headers := dsService.getCustomHeaders(sjson, map[string]string{"httpHeaderValue1": "Bearer xf5yhfkpsnmgo"})
@@ -449,7 +457,7 @@ func TestService_GetHttpTransport(t *testing.T) {
 			err := res.Body.Close()
 			require.NoError(t, err)
 		})
-		body, err := ioutil.ReadAll(res.Body)
+		body, err := io.ReadAll(res.Body)
 		require.NoError(t, err)
 		bodyStr := string(body)
 		require.Equal(t, "Ok", bodyStr)
@@ -462,11 +470,12 @@ func TestService_GetHttpTransport(t *testing.T) {
 			"timeout": 19,
 		})
 
-		secretsStore := kvstore.SetupTestService(t)
-		secretsService := secretsManager.SetupTestService(t, fakes.NewFakeSecretsStore())
+		sqlStore := sqlstore.InitTestDB(t)
+		secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+		secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
 		dsService := ProvideService(nil, secretsService, secretsStore, cfg, featuremgmt.WithFeatures(), acmock.New(), acmock.NewMockedPermissionsService())
 
-		ds := models.DataSource{
+		ds := datasources.DataSource{
 			Id:       1,
 			Url:      "http://k8s:8001",
 			Type:     "Kubernetes",
@@ -496,12 +505,13 @@ func TestService_GetHttpTransport(t *testing.T) {
 		sjson, err := simplejson.NewJson([]byte(`{ "sigV4Auth": true }`))
 		require.NoError(t, err)
 
-		secretsStore := kvstore.SetupTestService(t)
-		secretsService := secretsManager.SetupTestService(t, fakes.NewFakeSecretsStore())
+		sqlStore := sqlstore.InitTestDB(t)
+		secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+		secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
 		dsService := ProvideService(nil, secretsService, secretsStore, cfg, featuremgmt.WithFeatures(), acmock.New(), acmock.NewMockedPermissionsService())
 
-		ds := models.DataSource{
-			Type:     models.DS_ES,
+		ds := datasources.DataSource{
+			Type:     datasources.DS_ES,
 			JsonData: sjson,
 		}
 
@@ -532,12 +542,13 @@ func TestService_getTimeout(t *testing.T) {
 		{jsonData: simplejson.NewFromAny(map[string]interface{}{"timeout": "2"}), expectedTimeout: 2 * time.Second},
 	}
 
-	secretsStore := kvstore.SetupTestService(t)
-	secretsService := secretsManager.SetupTestService(t, fakes.NewFakeSecretsStore())
+	sqlStore := sqlstore.InitTestDB(t)
+	secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+	secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
 	dsService := ProvideService(nil, secretsService, secretsStore, cfg, featuremgmt.WithFeatures(), acmock.New(), acmock.NewMockedPermissionsService())
 
 	for _, tc := range testCases {
-		ds := &models.DataSource{
+		ds := &datasources.DataSource{
 			JsonData: tc.jsonData,
 		}
 		assert.Equal(t, tc.expectedTimeout, dsService.getTimeout(ds))
@@ -546,14 +557,15 @@ func TestService_getTimeout(t *testing.T) {
 
 func TestService_GetDecryptedValues(t *testing.T) {
 	t.Run("should migrate and retrieve values from secure json data", func(t *testing.T) {
-		ds := &models.DataSource{
+		ds := &datasources.DataSource{
 			Id:   1,
 			Url:  "https://api.example.com",
 			Type: "prometheus",
 		}
 
-		secretsStore := kvstore.SetupTestService(t)
-		secretsService := secretsManager.SetupTestService(t, fakes.NewFakeSecretsStore())
+		sqlStore := sqlstore.InitTestDB(t)
+		secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+		secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
 		dsService := ProvideService(nil, secretsService, secretsStore, nil, featuremgmt.WithFeatures(), acmock.New(), acmock.NewMockedPermissionsService())
 
 		jsonData := map[string]string{
@@ -571,14 +583,15 @@ func TestService_GetDecryptedValues(t *testing.T) {
 	})
 
 	t.Run("should retrieve values from secret store", func(t *testing.T) {
-		ds := &models.DataSource{
+		ds := &datasources.DataSource{
 			Id:   1,
 			Url:  "https://api.example.com",
 			Type: "prometheus",
 		}
 
-		secretsStore := kvstore.SetupTestService(t)
-		secretsService := secretsManager.SetupTestService(t, fakes.NewFakeSecretsStore())
+		sqlStore := sqlstore.InitTestDB(t)
+		secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+		secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
 		dsService := ProvideService(nil, secretsService, secretsStore, nil, featuremgmt.WithFeatures(), acmock.New(), acmock.NewMockedPermissionsService())
 
 		jsonData := map[string]string{
@@ -587,7 +600,7 @@ func TestService_GetDecryptedValues(t *testing.T) {
 		jsonString, err := json.Marshal(jsonData)
 		require.NoError(t, err)
 
-		err = secretsStore.Set(context.Background(), ds.OrgId, ds.Name, secretType, string(jsonString))
+		err = secretsStore.Set(context.Background(), ds.OrgId, ds.Name, secretskvs.DataSourceSecretType, string(jsonString))
 		require.NoError(t, err)
 
 		values, err := dsService.DecryptedValues(context.Background(), ds)

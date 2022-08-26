@@ -241,6 +241,16 @@ func AddAlertRuleMigrations(mg *migrator.Migrator, defaultIntervalSeconds int64)
 			Cols: []string{"org_id", "dashboard_uid", "panel_id"},
 		},
 	))
+
+	mg.AddMigration("add rule_group_idx column to alert_rule", migrator.NewAddColumnMigration(
+		migrator.Table{Name: "alert_rule"},
+		&migrator.Column{
+			Name:     "rule_group_idx",
+			Type:     migrator.DB_Int,
+			Nullable: false,
+			Default:  "1",
+		},
+	))
 }
 
 func AddAlertRuleVersionMigrations(mg *migrator.Migrator) {
@@ -284,6 +294,16 @@ func AddAlertRuleVersionMigrations(mg *migrator.Migrator) {
 
 	// add labels column
 	mg.AddMigration("add column labels to alert_rule_version", migrator.NewAddColumnMigration(alertRuleVersion, &migrator.Column{Name: "labels", Type: migrator.DB_Text, Nullable: true}))
+
+	mg.AddMigration("add rule_group_idx column to alert_rule_version", migrator.NewAddColumnMigration(
+		migrator.Table{Name: "alert_rule_version"},
+		&migrator.Column{
+			Name:     "rule_group_idx",
+			Type:     migrator.DB_Int,
+			Nullable: false,
+			Default:  "1",
+		},
+	))
 }
 
 func AddAlertmanagerConfigMigrations(mg *migrator.Migrator) {
@@ -376,6 +396,11 @@ func AddAlertImageMigrations(mg *migrator.Migrator) {
 			{Cols: []string{"token"}, Type: migrator.UniqueIndex},
 		},
 	}
+
 	mg.AddMigration("create alert_image table", migrator.NewAddTableMigration(imageTable))
 	mg.AddMigration("add unique index on token to alert_image table", migrator.NewAddIndexMigration(imageTable, imageTable.Indices[0]))
+
+	mg.AddMigration("support longer URLs in alert_image table", migrator.NewRawSQLMigration("").
+		Postgres("ALTER TABLE alert_image ALTER COLUMN url TYPE VARCHAR(2048);").
+		Mysql("ALTER TABLE alert_image MODIFY url VARCHAR(2048) NOT NULL;"))
 }

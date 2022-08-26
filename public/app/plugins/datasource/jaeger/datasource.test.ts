@@ -23,7 +23,7 @@ import {
 import { JaegerQuery } from './types';
 
 jest.mock('@grafana/runtime', () => ({
-  ...(jest.requireActual('@grafana/runtime') as any),
+  ...jest.requireActual('@grafana/runtime'),
   getBackendSrv: () => backendSrv,
   getTemplateSrv: () => ({
     replace: (val: string, subs: ScopedVars): string => {
@@ -113,7 +113,7 @@ describe('JaegerDatasource', () => {
         targets: [{ queryType: 'upload', refId: 'A' }],
       } as any)
     );
-    expect(response.error?.message).toBeDefined();
+    expect(response.error?.message).toBe('The JSON file uploaded is not in a valid Jaeger format');
     expect(response.data.length).toBe(0);
   });
 

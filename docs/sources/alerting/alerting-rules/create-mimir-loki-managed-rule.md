@@ -3,6 +3,7 @@ aliases:
   - /docs/grafana/latest/alerting/alerting-rules/create-mimir-loki-managed-rule/
   - /docs/grafana/latest/alerting/unified-alerting/alerting-rules/create-cortex-loki-managed-recording-rule/
   - /docs/grafana/latest/alerting/unified-alerting/alerting-rules/create-mimir-loki-managed-recording-rule/
+  - /docs/grafana/latest/alerting/unified-alerting/alerting-rules/create-mimir-loki-managed-rule/
 description: Create Grafana Mimir or Loki managed alerting rule
 keywords:
   - grafana
@@ -16,7 +17,7 @@ weight: 400
 
 # Create a Grafana Mimir or Loki managed alerting rule
 
-Grafana allows you to create alerting rules for an external Grafana Mimir or Loki instance that has ruler API enabled. For information on Grafana Alerting, see [About Grafana Alerting]({{< relref "../about-alerting/" >}}) which explains the various components of Grafana Alerting. We also recommend that you familiarize yourself with some of the [fundamental concepts]({{< relref "../fundamentals/" >}}) of Grafana Alerting.
+Grafana allows you to create alerting rules for an external Grafana Mimir or Loki instance that has ruler API enabled. For information on Grafana Alerting, see [About Grafana Alerting]({{< relref "../" >}}) which explains the various components of Grafana Alerting. We also recommend that you familiarize yourself with some of the [fundamental concepts]({{< relref "../fundamentals/" >}}) of Grafana Alerting.
 
 ## Before you begin
 
