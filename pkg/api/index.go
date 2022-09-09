@@ -840,6 +840,12 @@ func (hs *HTTPServer) setIndexViewData(c *models.ReqContext) (*dtos.IndexViewDat
 		data.Theme = darkName
 	}
 
+	if data.Theme == lightName {
+		data.LoadingLogo = "/public/img/insight_icon_light.png"
+	} else {
+		data.LoadingLogo = "/public/img/insight_icon_dark.png"
+	}
+
 	hs.HooksService.RunIndexDataHooks(&data, c)
 
 	sort.SliceStable(data.NavTree, func(i, j int) bool {

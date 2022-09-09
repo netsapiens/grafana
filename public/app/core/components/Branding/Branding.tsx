@@ -10,7 +10,9 @@ export interface BrandComponentProps {
 }
 
 const LoginLogo: FC<BrandComponentProps> = ({ className }) => {
-  return <img className={className} src="public/img/grafana_icon.svg" alt="Grafana" />;
+  const theme = useTheme2();
+  const imagePath = `public/img/insight_icon_${theme.isDark ? 'dark' : 'light'}.png`;
+  return <img className={className} src={imagePath} alt="Insight" />;
 };
 
 const LoginBackground: FC<BrandComponentProps> = ({ className, children }) => {
@@ -43,7 +45,9 @@ const LoginBackground: FC<BrandComponentProps> = ({ className, children }) => {
 };
 
 const MenuLogo: FC<BrandComponentProps> = ({ className }) => {
-  return <img className={className} src="public/img/grafana_icon.svg" alt="Grafana" />;
+  const theme = useTheme2();
+  const imagePath = `public/img/insight_icon_small_${theme.isDark ? 'dark' : 'light'}.png`;
+  return <img className={className} src={imagePath} alt="Insight" />;
 };
 
 const LoginBoxBackground = () => {
@@ -60,8 +64,10 @@ export class Branding {
   static MenuLogo = MenuLogo;
   static LoginBoxBackground = LoginBoxBackground;
   static AppTitle = 'NetSapiens Insight';
-  static LoginTitle = 'Welcome to Insight';
+  static LoginTitle = (): null | string => {
+    return '';
+  };
   static GetLoginSubTitle = (): null | string => {
-    return null;
+    return '';
   };
 }
