@@ -47,7 +47,7 @@ module.exports = (env = {}) =>
       minimize: parseInt(env.noMinify, 10) !== 1,
       minimizer: [
         new TerserPlugin({
-          parallel: false,
+          parallel: 4,
         }),
         new CssMinimizerPlugin(),
       ],
