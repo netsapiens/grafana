@@ -806,7 +806,7 @@ func (hs *HTTPServer) setIndexViewData(c *models.ReqContext) (*dtos.IndexViewDat
 		AppNameBodyClass:        "app-grafana",
 		FavIcon:                 "public/img/fav32.png",
 		AppleTouchIcon:          "public/img/apple-touch-icon.png",
-		AppTitle:                "Grafana",
+		AppTitle:                setting.ApplicationName,
 		NavTree:                 navTree,
 		Sentry:                  &hs.Cfg.Sentry,
 		Nonce:                   c.RequestNonce,
@@ -838,6 +838,12 @@ func (hs *HTTPServer) setIndexViewData(c *models.ReqContext) (*dtos.IndexViewDat
 	} else if themeURLParam == darkName {
 		data.User.LightTheme = false
 		data.Theme = darkName
+	}
+
+	if data.Theme == lightName {
+		data.LoadingLogo = "/public/img/insight_icon_light.png"
+	} else {
+		data.LoadingLogo = "/public/img/insight_icon_dark.png"
 	}
 
 	hs.HooksService.RunIndexDataHooks(&data, c)
