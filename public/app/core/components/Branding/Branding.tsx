@@ -2,7 +2,7 @@ import { css, cx } from '@emotion/css';
 import React, { FC } from 'react';
 
 import { colorManipulator } from '@grafana/data';
-import { useTheme2, styleMixins } from '@grafana/ui';
+import { Icon, useTheme2, styleMixins } from '@grafana/ui';
 
 export interface BrandComponentProps {
   className?: string;
@@ -45,9 +45,12 @@ const LoginBackground: FC<BrandComponentProps> = ({ className, children }) => {
 };
 
 const MenuLogo: FC<BrandComponentProps> = ({ className }) => {
-  const theme = useTheme2();
-  const imagePath = `public/img/insight_icon_small_${theme.isDark ? 'dark' : 'light'}.png`;
-  return <img className={className} src={imagePath} alt="Insight" />;
+  return <Icon size="xl" name="home-alt" />;
+
+  // disabled this icon because it's too similar to the search icon
+  // const theme = useTheme2();
+  // const imagePath = `public/img/insight_icon_small_${theme.isDark ? 'dark' : 'light'}.png`;
+  // return <img className={className} src={imagePath} alt="Insight" />;
 };
 
 const LoginBoxBackground = () => {
