@@ -27,6 +27,13 @@ export const enrichConfigItems = (
   location: Location<unknown>,
   toggleOrgSwitcher: () => void
 ) => {
+  // change profile icon
+  let profileItem = items.find((item) => item.id === 'profile');
+  if (profileItem) {
+    profileItem.icon = 'user';
+    delete profileItem.img;
+  }
+
   const { isSignedIn, user } = contextSrv;
   const onOpenShortcuts = () => {
     appEvents.publish(new ShowModalReactEvent({ component: HelpModal }));
