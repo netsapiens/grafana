@@ -148,8 +148,7 @@ class UnThemedLogDetailsRow extends PureComponent<Props, State> {
 
     const hasDetectedFieldsFunctionality = onClickShowDetectedField && onClickHideDetectedField;
 
-    // flag this to never show filtering functionality
-    const hasFilteringFunctionality = false && onClickFilterLabel && onClickFilterOutLabel;
+    const hasFilteringFunctionality = onClickFilterLabel && onClickFilterOutLabel;
 
     const toggleFieldButton =
       !isLabel && showDetectedFields && showDetectedFields.includes(parsedKey) ? (

@@ -17,7 +17,8 @@ export function CellActions({ field, cell, previewMode, onCellFilterAdded }: Cel
   const [isInspecting, setIsInspecting] = useState(false);
 
   const isRightAligned = getTextAlign(field) === 'flex-end';
-  const showFilters = Boolean(field.config.filterable) && cell.value !== undefined;
+  // disable filters
+  const showFilters = false && Boolean(field.config.filterable) && cell.value !== undefined;
   const inspectEnabled = Boolean((field.config.custom as TableFieldOptions)?.inspect);
   const commonButtonProps = {
     size: 'sm' as IconSize,
