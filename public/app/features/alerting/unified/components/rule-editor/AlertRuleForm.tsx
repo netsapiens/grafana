@@ -47,7 +47,7 @@ export const AlertRuleForm: FC<Props> = ({ existing }) => {
       ...getDefaultFormValues(),
       queries: getDefaultQueries(),
       ...(queryParams['defaults'] ? JSON.parse(queryParams['defaults'] as string) : {}),
-      type: RuleFormType.grafana,
+      type: RuleFormType.cloudAlerting,
     };
   }, [existing, queryParams]);
 

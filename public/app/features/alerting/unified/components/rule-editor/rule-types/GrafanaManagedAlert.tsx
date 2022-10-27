@@ -10,9 +10,9 @@ const GrafanaManagedRuleType: FC<SharedProps> = ({ selected = false, disabled, o
       name="Grafana managed alert"
       description={
         <span>
-          Supports multiple data sources of any kind.
+          NOT RECOMMENDED FOR USE!
           <br />
-          Transform data with expressions.
+          If you are seeing this option, please contact NetSapiens support for help with missing data sources.
         </span>
       }
       image="public/img/grafana_icon.svg"
