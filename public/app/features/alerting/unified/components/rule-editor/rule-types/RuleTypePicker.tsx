@@ -29,7 +29,7 @@ const RuleTypePicker: FC<RuleTypePickerProps> = ({ selected, onChange, enabledTy
         {enabledTypes.includes(RuleFormType.cloudRecording) && (
           <RecordingRuleType selected={selected === RuleFormType.cloudRecording} onClick={onChange} />
         )}
-        {false && !hasLotexDatasources && enabledTypes.includes(RuleFormType.grafana) && (
+        {!hasLotexDatasources && enabledTypes.includes(RuleFormType.grafana) && (
           <GrafanaManagedRuleType selected={selected === RuleFormType.grafana} onClick={onChange} />
         )}
       </Stack>
