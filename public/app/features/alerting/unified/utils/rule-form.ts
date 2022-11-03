@@ -47,7 +47,7 @@ export const getDefaultFormValues = (): RuleFormValues => {
       { key: Annotation.description, value: '' },
       { key: Annotation.runbookURL, value: '' },
     ],
-    dataSourceName: null,
+    dataSourceName: 'iNSight Mimir',
     type: canCreateGrafanaRules ? RuleFormType.grafana : canCreateCloudRules ? RuleFormType.cloudAlerting : undefined, // viewers can't create prom alerts
     group: '',
 
