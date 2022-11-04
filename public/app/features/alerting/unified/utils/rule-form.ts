@@ -38,6 +38,9 @@ import { parseInterval } from './time';
 
 export const getDefaultFormValues = (): RuleFormValues => {
   const { canCreateGrafanaRules, canCreateCloudRules } = getRulesAccess();
+  const defaultDataSource = getDataSourceSrv()
+    .getList()
+    .find((item) => item.isDefault)?.name;
 
   return Object.freeze({
     name: '',
@@ -47,7 +50,7 @@ export const getDefaultFormValues = (): RuleFormValues => {
       { key: Annotation.description, value: '' },
       { key: Annotation.runbookURL, value: '' },
     ],
-    dataSourceName: 'iNSight Mimir',
+    dataSourceName: defaultDataSource || null,
     type: canCreateGrafanaRules ? RuleFormType.grafana : canCreateCloudRules ? RuleFormType.cloudAlerting : undefined, // viewers can't create prom alerts
     group: '',
 
