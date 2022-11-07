@@ -11,6 +11,7 @@ import { AppChromeUpdate } from 'app/core/components/AppChrome/AppChromeUpdate';
 import { NavToolbarSeparator } from 'app/core/components/AppChrome/NavToolbarSeparator';
 import config from 'app/core/config';
 import { toggleKioskMode } from 'app/core/navigation/kiosk';
+import { contextSrv } from 'app/core/services/context_srv';
 import { DashboardCommentsModal } from 'app/features/dashboard/components/DashboardComments/DashboardCommentsModal';
 import { SaveDashboardDrawer } from 'app/features/dashboard/components/SaveDashboard/SaveDashboardDrawer';
 import { ShareModal } from 'app/features/dashboard/components/ShareModal';
@@ -64,6 +65,7 @@ export function addCustomRightAction(content: DashNavButtonModel) {
 type Props = OwnProps & ConnectedProps<typeof connector>;
 
 export const DashNav = React.memo<Props>((props) => {
+  const currentOrgName = contextSrv.user.orgName;
   const forceUpdate = useForceUpdate();
 
   const onStarDashboard = () => {
@@ -338,6 +340,7 @@ export const DashNav = React.memo<Props>((props) => {
       parentHref={parentHref}
       onGoBack={onGoBack}
       leftItems={renderLeftActions()}
+      orgName={currentOrgName}
     >
       {renderRightActions()}
     </PageToolbar>

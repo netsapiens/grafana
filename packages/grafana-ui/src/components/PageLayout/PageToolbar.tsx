@@ -25,6 +25,7 @@ export interface Props {
   className?: string;
   isFullscreen?: boolean;
   'aria-label'?: string;
+  orgName?: string;
 }
 
 /** @alpha */
@@ -43,6 +44,7 @@ export const PageToolbar: FC<Props> = React.memo(
     className,
     /** main nav-container aria-label **/
     'aria-label': ariaLabel,
+    orgName,
   }) => {
     const styles = useStyles2(getStyles);
 
@@ -133,6 +135,7 @@ export const PageToolbar: FC<Props> = React.memo(
             )}
           </nav>
         </div>
+        {orgName && orgName?.length > 0 && <span>Current org.: {orgName}</span>}
         {React.Children.toArray(children)
           .filter(Boolean)
           .map((child, index) => {
