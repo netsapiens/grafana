@@ -135,7 +135,7 @@ export const PageToolbar: FC<Props> = React.memo(
             )}
           </nav>
         </div>
-        {orgName && orgName?.length > 0 && <span>Current org.: {orgName}</span>}
+        {orgName && orgName?.length > 0 && <span>Organization: {orgName}</span>}
         {React.Children.toArray(children)
           .filter(Boolean)
           .map((child, index) => {
