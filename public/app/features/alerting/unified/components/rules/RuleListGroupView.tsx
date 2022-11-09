@@ -3,7 +3,7 @@ import React, { FC, useMemo } from 'react';
 import { AccessControlAction } from 'app/types';
 import { CombinedRuleNamespace } from 'app/types/unified-alerting';
 
-import { isCloudRulesSource, isGrafanaRulesSource } from '../../utils/datasource';
+import { isCloudRulesSource } from '../../utils/datasource';
 import { Authorize } from '../Authorize';
 
 import { CloudRules } from './CloudRules';
@@ -21,10 +21,7 @@ export const RuleListGroupView: FC<Props> = ({ namespaces, expandAll }) => {
         groups: namespace.groups.sort((a, b) => a.name.localeCompare(b.name)),
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
-    return [
-      sorted.filter((ns) => isGrafanaRulesSource(ns.rulesSource)),
-      sorted.filter((ns) => isCloudRulesSource(ns.rulesSource)),
-    ];
+    return [sorted.filter((ns) => isCloudRulesSource(ns.rulesSource))];
   }, [namespaces]);
 
   return (
