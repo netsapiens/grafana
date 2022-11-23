@@ -1,5 +1,5 @@
 import { t, Trans } from '@lingui/macro';
-import React, { FC, ReactNode } from 'react';
+import React, { useState, FC, ReactNode } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
@@ -19,6 +19,7 @@ import { playlistSrv } from 'app/features/playlist/PlaylistSrv';
 import { updateTimeZoneForSession } from 'app/features/profile/state/reducers';
 import { KioskMode } from 'app/types';
 
+import { OrgSwitcher } from '../../../../core/components/OrgSwitcher';
 import { setStarred } from '../../../../core/reducers/navBarTree';
 import { getDashboardSrv } from '../../services/DashboardSrv';
 import { DashboardModel } from '../../state';
@@ -65,6 +66,11 @@ export function addCustomRightAction(content: DashNavButtonModel) {
 type Props = OwnProps & ConnectedProps<typeof connector>;
 
 export const DashNav = React.memo<Props>((props) => {
+  const [showSwitcherModal, setShowSwitcherModal] = useState(false);
+  const toggleSwitcherModal = () => {
+    setShowSwitcherModal(!showSwitcherModal);
+  };
+
   const currentOrgName = contextSrv.user.orgName;
   const forceUpdate = useForceUpdate();
 
@@ -246,6 +252,15 @@ export const DashNav = React.memo<Props>((props) => {
       return [renderTimeControls(), tvButton];
     }
 
+    buttons.push(
+      <ToolbarButton
+        tooltip={t({ id: 'dashboard.toolbar.switch-org', message: 'Switch organization' })}
+        icon="sitemap"
+        onClick={toggleSwitcherModal}
+        key="button-show-switcher"
+      />
+    );
+
     if (canEdit && !isFullscreen) {
       buttons.push(
         <ToolbarButton
@@ -332,18 +347,21 @@ export const DashNav = React.memo<Props>((props) => {
   }
 
   return (
-    <PageToolbar
-      pageIcon={isFullscreen ? undefined : 'apps'}
-      title={title}
-      parent={folderTitle}
-      titleHref={titleHref}
-      parentHref={parentHref}
-      onGoBack={onGoBack}
-      leftItems={renderLeftActions()}
-      orgName={currentOrgName}
-    >
-      {renderRightActions()}
-    </PageToolbar>
+    <div>
+      <PageToolbar
+        pageIcon={isFullscreen ? undefined : 'apps'}
+        title={title}
+        parent={folderTitle}
+        titleHref={titleHref}
+        parentHref={parentHref}
+        onGoBack={onGoBack}
+        leftItems={renderLeftActions()}
+        orgName={currentOrgName}
+      >
+        {renderRightActions()}
+      </PageToolbar>
+      {showSwitcherModal && <OrgSwitcher onDismiss={toggleSwitcherModal} />}
+    </div>
   );
 });
 
