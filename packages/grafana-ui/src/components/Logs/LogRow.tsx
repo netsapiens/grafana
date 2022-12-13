@@ -19,6 +19,7 @@ import { Themeable2 } from '../../types/theme';
 import { Icon } from '../Icon/Icon';
 import { Tooltip } from '../Tooltip/Tooltip';
 
+import { CustomLogLabels } from './CustomLogLabels';
 import { LogDetails } from './LogDetails';
 import { LogLabels } from './LogLabels';
 import {
@@ -46,6 +47,8 @@ interface Props extends Themeable2 {
   logsSortOrder?: LogsSortOrder | null;
   forceEscape?: boolean;
   showDetectedFields?: string[];
+  showCustomLabels: boolean;
+  customLabels: string;
   getRows: () => LogRowModel[];
   onClickFilterLabel?: (key: string, value: string) => void;
   onClickFilterOutLabel?: (key: string, value: string) => void;
@@ -140,6 +143,8 @@ class UnThemedLogRow extends PureComponent<Props, State> {
       showDetectedFields,
       wrapLogMessage,
       prettifyLogMessage,
+      showCustomLabels,
+      customLabels,
       theme,
       getFieldLinks,
       forceEscape,
@@ -191,6 +196,11 @@ class UnThemedLogRow extends PureComponent<Props, State> {
           {showLabels && processedRow.uniqueLabels && (
             <td className={style.logsRowLabels}>
               <LogLabels labels={processedRow.uniqueLabels} />
+            </td>
+          )}
+          {showCustomLabels && (
+            <td className={style.logsRowLabels}>
+              <CustomLogLabels labels={processedRow.labels} customLabels={customLabels} />
             </td>
           )}
           {showDetectedFields && showDetectedFields.length > 0 ? (

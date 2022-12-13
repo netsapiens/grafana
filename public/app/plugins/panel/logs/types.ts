@@ -9,4 +9,6 @@ export interface Options {
   enableLogDetails: boolean;
   sortOrder: LogsSortOrder;
   dedupStrategy: LogsDedupStrategy;
+  showCustomLabels: boolean;
+  customLabels: string;
 }

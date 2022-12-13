@@ -33,6 +33,8 @@ export const LogsPanel: React.FunctionComponent<LogsPanelProps> = ({
     sortOrder,
     dedupStrategy,
     enableLogDetails,
+    showCustomLabels,
+    customLabels,
   },
   title,
   id,
@@ -113,6 +115,8 @@ export const LogsPanel: React.FunctionComponent<LogsPanelProps> = ({
           enableLogDetails={enableLogDetails}
           previewLimit={isAscending ? logRows.length : undefined}
           onLogRowHover={onLogRowHover}
+          showCustomLabels={showCustomLabels}
+          customLabels={customLabels}
         />
         {showCommonLabels && isAscending && renderCommonLabels()}
       </div>

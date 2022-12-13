@@ -20,6 +20,19 @@ export const plugin = new PanelPlugin<Options>(LogsPanel)
         defaultValue: false,
       })
       .addBooleanSwitch({
+        path: 'showCustomLabels',
+        name: 'Custom labels',
+        description: '',
+        defaultValue: false,
+      })
+      .addTextInput({
+        path: 'customLabels',
+        name: 'Custom labels',
+        description: '',
+        showIf: (config) => config.showCustomLabels,
+        defaultValue: '',
+      })
+      .addBooleanSwitch({
         path: 'showCommonLabels',
         name: 'Common labels',
         description: '',

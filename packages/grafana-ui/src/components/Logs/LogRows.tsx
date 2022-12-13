@@ -27,6 +27,8 @@ export interface Props extends Themeable2 {
   previewLimit?: number;
   forceEscape?: boolean;
   showDetectedFields?: string[];
+  showCustomLabels: boolean;
+  customLabels: string;
   showContextToggle?: (row?: LogRowModel) => boolean;
   onClickFilterLabel?: (key: string, value: string) => void;
   onClickFilterOutLabel?: (key: string, value: string) => void;
@@ -90,6 +92,8 @@ class UnThemedLogRows extends PureComponent<Props, State> {
       logRows,
       deduplicatedRows,
       timeZone,
+      showCustomLabels,
+      customLabels,
       onClickFilterLabel,
       onClickFilterOutLabel,
       theme,
@@ -140,6 +144,8 @@ class UnThemedLogRows extends PureComponent<Props, State> {
                 prettifyLogMessage={prettifyLogMessage}
                 timeZone={timeZone}
                 enableLogDetails={enableLogDetails}
+                showCustomLabels={showCustomLabels}
+                customLabels={customLabels}
                 onClickFilterLabel={onClickFilterLabel}
                 onClickFilterOutLabel={onClickFilterOutLabel}
                 onClickShowDetectedField={onClickShowDetectedField}
@@ -167,6 +173,8 @@ class UnThemedLogRows extends PureComponent<Props, State> {
                 prettifyLogMessage={prettifyLogMessage}
                 timeZone={timeZone}
                 enableLogDetails={enableLogDetails}
+                showCustomLabels={showCustomLabels}
+                customLabels={customLabels}
                 onClickFilterLabel={onClickFilterLabel}
                 onClickFilterOutLabel={onClickFilterOutLabel}
                 onClickShowDetectedField={onClickShowDetectedField}

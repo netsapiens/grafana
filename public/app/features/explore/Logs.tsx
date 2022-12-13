@@ -49,6 +49,8 @@ const SETTINGS_KEYS = {
   wrapLogMessage: 'grafana.explore.logs.wrapLogMessage',
   prettifyLogMessage: 'grafana.explore.logs.prettifyLogMessage',
   logsSortOrder: 'grafana.explore.logs.sortOrder',
+  showCustomLabels: 'grafana.explore.logs.showCustomLabels',
+  customLabels: 'grafana.explore.logs.customLabels',
 };
 
 interface Props extends Themeable2 {
@@ -93,6 +95,8 @@ interface State {
   isFlipping: boolean;
   showDetectedFields: string[];
   forceEscape: boolean;
+  showCustomLabels: boolean;
+  customLabels: string;
 }
 
 class UnthemedLogs extends PureComponent<Props, State> {
@@ -111,6 +115,8 @@ class UnthemedLogs extends PureComponent<Props, State> {
     isFlipping: false,
     showDetectedFields: [],
     forceEscape: false,
+    showCustomLabels: store.getBool(SETTINGS_KEYS.showCustomLabels, false),
+    customLabels: store.getObject(SETTINGS_KEYS.customLabels, ''),
   };
 
   componentWillUnmount() {
@@ -314,6 +320,8 @@ class UnthemedLogs extends PureComponent<Props, State> {
       isFlipping,
       showDetectedFields,
       forceEscape,
+      showCustomLabels,
+      customLabels,
     } = this.state;
 
     const styles = getStyles(theme, wrapLogMessage);
@@ -445,6 +453,8 @@ class UnthemedLogs extends PureComponent<Props, State> {
               showLabels={showLabels}
               showTime={showTime}
               enableLogDetails={true}
+              showCustomLabels={showCustomLabels}
+              customLabels={customLabels}
               forceEscape={forceEscape}
               wrapLogMessage={wrapLogMessage}
               prettifyLogMessage={prettifyLogMessage}
