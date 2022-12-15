@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 
 import { Alert } from 'app/types/unified-alerting';
 
+import { Annotation } from '../../utils/constants';
 import { AnnotationDetailsField } from '../AnnotationDetailsField';
 import { DetailsField } from '../DetailsField';
 
@@ -10,7 +11,13 @@ interface Props {
 }
 
 export const AlertInstanceDetails: FC<Props> = ({ instance }) => {
-  const annotations = (Object.entries(instance.annotations || {}) || []).filter(([_, value]) => !!value.trim());
+  let annotations = (Object.entries(instance.annotations || {}) || []).filter(([_, value]) => !!value.trim());
+  // process panel link if it exists
+  let panelId = annotations.find((item) => item[0] === Annotation.panelID);
+  let dashUid = annotations.find((item) => item[0] === Annotation.dashboardUID);
+  if (dashUid && panelId) {
+    panelId[1] = `${dashUid[1]}&viewPanel=${panelId[1]}`;
+  }
 
   return (
     <div>
@@ -20,7 +27,7 @@ export const AlertInstanceDetails: FC<Props> = ({ instance }) => {
         </DetailsField>
       )}
       {annotations.map(([key, value]) => (
-        <AnnotationDetailsField key={key} annotationKey={key} value={value} />
+        <AnnotationDetailsField key={key} annotationKey={key} value={value} buttonize={true} />
       ))}
     </div>
   );
