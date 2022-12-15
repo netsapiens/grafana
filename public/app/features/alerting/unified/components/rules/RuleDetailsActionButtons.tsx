@@ -120,7 +120,7 @@ export const RuleDetailsActionButtons: FC<Props> = ({ rule, rulesSource }) => {
           variant="primary"
           icon="apps"
           target="__blank"
-          href={`d/${encodeURIComponent(dashboardUID)}`}
+          href={`d/${dashboardUID}`}
         >
           Go to dashboard
         </LinkButton>
@@ -135,7 +135,7 @@ export const RuleDetailsActionButtons: FC<Props> = ({ rule, rulesSource }) => {
             variant="primary"
             icon="apps"
             target="__blank"
-            href={`d/${encodeURIComponent(dashboardUID)}?viewPanel=${encodeURIComponent(panelId)}`}
+            href={`d/${dashboardUID}?viewPanel=${panelId}`}
           >
             Go to panel
           </LinkButton>
