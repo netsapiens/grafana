@@ -54,13 +54,5 @@ const columns: AlertTableColumnProps[] = [
     // eslint-disable-next-line react/display-name
     renderCell: ({ data: { labels } }) => <AlertLabels labels={labels} />,
   },
-  {
-    id: 'created',
-    label: 'Created',
-    // eslint-disable-next-line react/display-name
-    renderCell: ({ data: { activeAt } }) => (
-      <>{activeAt.startsWith('0001') ? '-' : activeAt.slice(0, 19).replace('T', ' ')}</>
-    ),
-    size: '150px',
-  },
+  //iNSight remove created to save space
 ];
